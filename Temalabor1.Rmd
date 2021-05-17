@@ -1,0 +1,325 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(readr)
+FIFADATABASE <- read_csv2("ultimateData.csv")
+data(FIFADATABASE)
+remove.zero = apply(FIFADATABASE, 1, function(row) all(row !=0 ))
+FIFADATABASE[remove.zero,]
+na.omit(FIFADATABASE)
+```
+
+```{r}
+#Magassággal kapcsolatos tények
+
+cat("A legmagasabb játékos:",max(FIFADATABASE$height_cm),"cm\n")
+cat("A legalacsonyabb játékos:",min(FIFADATABASE$height_cm),"cm\n")
+
+heightHist <-hist(FIFADATABASE$height_cm,main = paste("Histogram of heights"),xlab = "Heights (cm)")
+imax <- which.max(heightHist$counts)
+cat("A legtöbb játékos (", heightHist$counts[imax] ," db) a ",heightHist$breaks[imax],"-",heightHist$breaks[imax+1]," cm tartományba esik", sep="")
+
+FIFADATABASE.filtered<-FIFADATABASE[which(FIFADATABASE$wage_eur>10000
+& FIFADATABASE$wage_eur< 200000),] 
+
+height_cm.wage<-aggregate(FIFADATABASE.filtered$wage_eur, by=list(Height = FIFADATABASE.filtered$height_cm), FUN = mean )
+
+colnames(height_cm.wage) <- c("Height", "Mean of Wage")
+
+barplot(height_cm.wage$`Mean of Wage`,names = height_cm.wage$Height,width = 3,las=2,
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        xlab = "Height(cm)",
+        main="Average salary by player's height")
+
+```
+```{r}
+#Top 10 legmagasabb nemzet a FIFA-ban játszó játékosaik alapján
+
+height_cm.nation<-aggregate(FIFADATABASE$height_cm, by=list(Nationality = FIFADATABASE$nationality), FUN = mean )
+height_cm.nation <- height_cm.nation[order(height_cm.nation[,2],decreasing = TRUE ),]
+height_cm.nation <- height_cm.nation[1:10,]
+
+colnames(height_cm.nation) <- c("Nation", "Mean of height")
+height_cm.nation
+ylim <- c(0, 1.1*max(height_cm.nation$`Mean of height`))
+
+plot.height<-barplot(height_cm.nation$`Mean of height`,names = height_cm.nation$Nation,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Height(cm)",
+        main="Average heights by nations")
+rounded.average.height<-round(height_cm.nation$`Mean of height`,digits = 1)
+
+text(x = plot.height, y = height_cm.nation$`Mean of height` ,label = rounded.average.height, pos = 3, cex = 0.8, col = "red")
+text(x = plot.height, y = height_cm.nation$`Mean of height` ,label = height_cm.nation$Nation,srt=90, pos = 2, cex = 1, col = "black",adj=2)
+
+#Top 10 legalacsonyabb nemzet a FIFA-ban játszó játékosaik alapján
+
+
+height_cm.nation<-aggregate(FIFADATABASE$height_cm, by=list(Nationality = FIFADATABASE$nationality), FUN = mean )
+height_cm.nation <- height_cm.nation[order(height_cm.nation[,2],decreasing = FALSE ),]
+height_cm.nation <- height_cm.nation[1:10,]
+
+colnames(height_cm.nation) <- c("Nation", "Mean of height")
+height_cm.nation
+ylim <- c(0, 1.1*max(height_cm.nation$`Mean of height`))
+
+plot.height<-barplot(height_cm.nation$`Mean of height`,names = height_cm.nation$Nation,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Height(cm)",
+        main="Average heights by nations")
+rounded.average.height<-round(height_cm.nation$`Mean of height`,digits = 1)
+
+text(x = plot.height, y = height_cm.nation$`Mean of height` ,label = rounded.average.height, pos = 3, cex = 0.8, col = "red")
+text(x = plot.height, y = height_cm.nation$`Mean of height` ,label = height_cm.nation$Nation,srt=90, pos = 2, cex = 1, col = "black",adj=2)
+
+
+
+```
+
+```{r}
+#A clubok melyekben átlagosan a legalacsonyabb játékosok játszanak
+height.club<-aggregate(FIFADATABASE$height_cm, by=list(Clubs = FIFADATABASE$club_name), FUN = mean )
+height.club <- height.club[order(height.club[,2],decreasing = FALSE ),]
+height.club <- height.club[1:10,]
+
+colnames(height.club) <- c("Club", "Mean of height")
+
+height.club
+ylim <- c(0, 1.1*max(height.club$`Mean of height`))
+
+plot.height<-barplot(height.club$`Mean of height`,names = height.club$Club,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Height (cm)",
+        main="Average heights by clubs")
+rounded.average.height<-round(height.club$`Mean of height`,digits = 2)
+
+text(x = plot.height, y = height.club$`Mean of height` ,label = rounded.average.height, pos = 3, cex = 0.8, col = "blue")
+text(x = plot.height, y = height.club$`Mean of height` ,label = height.club$Club,srt=90, pos = 2, cex = 1, col = "black",adj=2)
+
+#A clubok melyekben átlagosan a legmagasabb játékosok játszanak
+height.club<-aggregate(FIFADATABASE$height_cm, by=list(Clubs = FIFADATABASE$club_name), FUN = mean )
+height.club <- height.club[order(height.club[,2],decreasing = TRUE ),]
+height.club <- height.club[1:10,]
+
+colnames(height.club) <- c("Club", "Mean of height")
+
+height.club
+ylim <- c(0, 1.1*max(height.club$`Mean of height`))
+
+plot.height<-barplot(height.club$`Mean of height`,names = height.club$Club,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Height (cm)",
+        main="Average heights by clubs")
+rounded.average.height<-round(height.club$`Mean of height`,digits = 2)
+
+text(x = plot.height, y = height.club$`Mean of height` ,label = rounded.average.height, pos = 3, cex = 0.8, col = "blue")
+text(x = plot.height, y = height.club$`Mean of height` ,label = height.club$Club,srt=90, pos = 2, cex = 1, col = "black",adj=2)
+
+
+
+```
+
+```{r}
+#Korral kapcsolatos tények
+
+cat("A legidősebb játékos:",max(FIFADATABASE$age),"éves\n")
+cat("A legafiatalabb játékos:",min(FIFADATABASE$age),"éves\n")
+agehist<-hist(FIFADATABASE$age,main = paste("Histogram of ages"),xlab = "Ages (year)",xlim = c(15,45))
+axis(side = 1,at=seq(10,45,by=5))
+
+cat("A legtöbb játékos (", agehist$counts[imax] ," db) a ",agehist$breaks[imax],"-",agehist$breaks[imax+1]," év tartományba esik", sep="")
+
+imax <- which.max(agehist$counts)
+
+wageByAge<-aggregate(FIFADATABASE.filtered$wage_eur, by=list(Age = FIFADATABASE.filtered$age), FUN = mean )
+
+colnames(wageByAge) <- c("Age", "Mean of Wage")
+
+barplot(wageByAge$`Mean of Wage`,names = wageByAge$Age ,width = 3,las=1,
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        xlab = "Age (year)",
+        main="Average salary by player's age")
+
+
+```
+```{r}
+#Top 10 legfiatalabb nemzet a FIFA-ban játszó játékosaik alapján
+age.nation<-aggregate(FIFADATABASE$age, by=list(Nationality = FIFADATABASE$nationality), FUN = mean )
+age.nation <- age.nation[order(age.nation[,2],decreasing = FALSE ),]
+age.nation <- age.nation[1:10,]
+
+colnames(age.nation) <- c("Nation", "Mean of age")
+
+age.nation
+ylim <- c(0, 1.1*max(age.nation$`Mean of age`))
+
+plot.age<-barplot(age.nation$`Mean of age`,names = age.nation$Nation,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Age (year)",
+        main="Average age by nations")
+rounded.average.heights<-round(age.nation$`Mean of age`,digits = 2)
+
+text(x = plot.age, y = age.nation$`Mean of age` ,label = rounded.average.heights, pos = 3, cex = 0.8, col = "red")
+text(x = plot.age, y = age.nation$`Mean of age` ,label = age.nation$Nation,srt=90, pos = 2, cex = 1, col = "black",adj=2)
+
+#Top 10 legidősebbb nemzet a FIFA-ban játszó játékosaik alapján
+age.nation<-aggregate(FIFADATABASE$age, by=list(Nationality = FIFADATABASE$nationality), FUN = mean )
+age.nation <- age.nation[order(age.nation[,2],decreasing = TRUE ),]
+age.nation <- age.nation[1:10,]
+
+colnames(age.nation) <- c("Nation", "Mean of age")
+
+palette("default")
+age.nation
+ylim <- c(0, 1.1*max(age.nation$`Mean of age`))
+
+plot.age<-barplot(age.nation$`Mean of age`,names = age.nation$Nation,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Age (year)",
+        main="Average age by nations")
+rounded.average.heights<-round(age.nation$`Mean of age`,digits = 2)
+
+text(x = plot.age, y = age.nation$`Mean of age` ,label = rounded.average.heights, pos = 3, cex = 0.8, col = "red")
+text(x = plot.age, y = age.nation$`Mean of age` ,label = age.nation$Nation,srt=90, pos = 2, cex = 1, col = "black",adj=2)
+
+
+
+```
+
+```{r}
+#A clubok melyekben átlagosan a legfiatalabb játékosok játszanak
+age.club<-aggregate(FIFADATABASE$age, by=list(Clubs = FIFADATABASE$club_name), FUN = mean )
+age.club <- age.club[order(age.club[,2],decreasing = FALSE ),]
+age.club <- age.club[1:10,]
+
+colnames(age.club) <- c("Club", "Mean of age")
+
+age.club
+ylim <- c(0, 1.1*max(age.club$`Mean of age`))
+
+plot.age<-barplot(age.club$`Mean of age`,names = age.club$Club,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Age (year)",
+        main="Average age by clubs")
+rounded.average.heights<-round(age.club$`Mean of age`,digits = 2)
+
+text(x = plot.age, y = age.club$`Mean of age` ,label = rounded.average.heights, pos = 3, cex = 0.8, col = "blue")
+text(x = plot.age, y = age.club$`Mean of age` ,label = age.club$Club,srt=90, pos = 2, cex = 1, col = "black",adj=2)
+
+#A clubok melyekben átlagosan a legidősebb játékosok játszanak
+age.club<-aggregate(FIFADATABASE$age, by=list(Clubs = FIFADATABASE$club_name), FUN = mean )
+age.club <- age.club[order(age.club[,2],decreasing = TRUE ),]
+age.club <- age.club[1:10,]
+
+colnames(age.club) <- c("Club", "Mean of age")
+
+age.club
+ylim <- c(0, 1.1*max(age.club$`Mean of age`))
+
+plot.age<-barplot(age.club$`Mean of age`,names = age.club$Club,width = 3,ylim = ylim,xaxt="n",
+        col = NULL,
+        horiz = FALSE,
+        cex.names = 0.6,
+        ylab = "Age (year)",
+        main="Average age by clubs")
+rounded.average.heights<-round(age.club$`Mean of age`,digits = 2)
+
+text(x = plot.age, y = age.club$`Mean of age` ,label = rounded.average.heights, pos = 3, cex = 0.8, col = "blue")
+text(x = plot.age, y = age.club$`Mean of age` ,label = age.club$Club,srt=90, pos = 2, cex = 1, col = "black",adj=0.5)
+
+
+```
+
+```{r}
+#a top 10 legtöbb játékost a FIFA-ba delegáló ország
+
+different_nations <-unique(FIFADATABASE$nationality)
+
+playersCounted <-table(FIFADATABASE$nationality)
+numberOfPlayersByNations <-data.frame(playersCounted)
+numberOfPlayersByNations <- numberOfPlayersByNations[order(numberOfPlayersByNations[,2],decreasing = TRUE ),]
+numberOfPlayersByNations <- numberOfPlayersByNations[1:10,]
+
+colnames(numberOfPlayersByNations) <- c("Nation", "Number of players")
+
+numberOfPlayersByNations
+nations<- unique(numberOfPlayersByNations$Nation)
+numbers<-c(numberOfPlayersByNations$`Number of players`)
+
+library(plotly)
+
+pie <- plot_ly(numberOfPlayersByNations, labels = nations, values = numbers, type = 'pie',text=numbers)
+pie
+
+```
+
+```{r}
+#top 20 legjobb átlagfizetésű klub
+
+wage.average.by.clubs<- aggregate(FIFADATABASE.filtered$wage_eur, by=list(Club = FIFADATABASE.filtered$club_name), FUN = mean )
+wage.average.by.clubs <- wage.average.by.clubs[order(wage.average.by.clubs[,2],decreasing = TRUE),]
+
+colnames(wage.average.by.clubs) <- c("Club", "Mean of wage by clubs")
+
+ylim <- c(0, 1.2*max(wage.average.by.clubs$`Mean of wage by clubs`))
+wage.average.by.clubs <- wage.average.by.clubs[1:20,]
+
+rounded.average.wage<-round(wage.average.by.clubs$`Mean of wage by clubs`,digits = 0)
+
+plot.wage<-barplot(wage.average.by.clubs$`Mean of wage by clubs`,names = wage.average.by.clubs$Club,ylim =ylim,las=2,
+        col = 1:30,
+        horiz = FALSE,
+        cex.names = .6,
+        main="Mean of wage by Clubs")
+
+text(x = plot.wage, y = wage.average.by.clubs$`Mean of wage by clubs` ,label = rounded.average.wage, pos = 4, cex = 0.7, 
+     col = "black",srt=45)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
